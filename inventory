@@ -1,0 +1,6 @@
+[db_and_web_servers]
+node1 ansible_ssh_pass=123 ansible_ssh_user=root ansible_python_interpreter=/usr/bin/python3
+node2 ansible_ssh_pass=123 ansible_ssh_user=root ansible_python_interpreter=/usr/bin/python3
+
+[controllers]
+controller ansible_ssh_pass=123 ansible_ssh_user=root ansible_python_interpreter=/usr/bin/python3

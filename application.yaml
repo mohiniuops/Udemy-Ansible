@@ -1,0 +1,74 @@
+- name: Deploy an web Application
+  hosts: db_and_web_servers
+  tasks:
+    - name: Install Dependencies
+      apt:
+        name: [ 'python3-setuptools', 'python3-dev', 'build-essential', 'python3-pip', 'python3-mysqldb', 'python3', 'python3-pip' ]
+        state: present
+    - name: Remove "mysql" package
+      apt:
+        name: mysql*
+        state: absent
+      tags: mysql_user
+    - name: Remove useless packages from the cache
+      apt:
+        autoclean: yes
+    - name: Remove dependencies that are no longer required
+      apt:
+        autoremove: yes
+      tags: mysql_user
+    - name: Recursively remove directory
+      file:
+        path: ['/etc/mysql','/var/lib/mysql']
+        state: absent
+      tags: mysql_user
+    - name: Install mysql
+      apt:
+        name: ['mysql-server','mysql-client']
+      tags: mysql_user
+
+    - name: Start mysql
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+      tags: mysql_user
+
+    - name: Copy mysql cnf file
+      copy: src=.my.cnf dest=/root/.my.cnf1
+    - name: "Install ansible python3 mysql dependency"
+      apt:
+        name: python3-mysqldb
+        state: latest
+      tags: mysql_user
+
+
+    - name: Create mysql user
+      mysql_user:
+        name: db_user
+        password: Passw0rd
+        priv: '*.*:ALL'
+        host: '%'
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        state: present
+      tags: mysql_user
+
+    - name: Create a new database with name 'employee_db'
+      mysql_db:
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        name: employee_db
+        state: present
+    - name: Upgrade pip
+      shell: 'echo pip3 install --upgrade pip3'
+
+    - name: Remove Flask dependencies
+      pip:
+        name: ['flask', 'flask-mysql']
+        state: present
+        executable: pip3
+
+    - name: Remove Flask dependencies
+      pip:
+        name: [ 'flask', 'flask-mysql' ]
+        state: latest
+        executable: pip3
