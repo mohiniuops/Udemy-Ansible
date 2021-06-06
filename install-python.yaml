@@ -28,6 +28,7 @@
          apt:
            name: zlib1g-dev
            state: present
+
        - name: "Run 'configure' target as root"
          command: chdir=/usr/src/Python-{{ python_version_default }} ./configure --enable-optimizations
          become: yes
@@ -38,7 +39,7 @@
            chdir: /usr/src/Python-{{ python_version_default }}
            target: install
            file: /usr/src/Python-{{ python_version_default }}/Makefile
-         notify: python installed
+
          become: yes
          tags: skip_ansible_lint
 
