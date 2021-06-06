@@ -3,28 +3,14 @@
   tasks:
     - name: Install Dependencies
       apt:
-        name: [ 'python3-setuptools', 'python3-dev', 'build-essential', 'python3-pip', 'python3-mysqldb', 'python3', 'python3-pip' ]
-        state: present
-    - name: Remove "mysql" package
-      apt:
-        name: mysql*
-        state: absent
-      tags: mysql_user
-    - name: Remove useless packages from the cache
-      apt:
-        autoclean: yes
-    - name: Remove dependencies that are no longer required
-      apt:
-        autoremove: yes
-      tags: mysql_user
-    - name: Recursively remove directory
-      file:
-        path: ['/etc/mysql','/var/lib/mysql']
-        state: absent
-      tags: mysql_user
+        name: [ 'python3-setuptools', 'python3-dev','python-apt','python3-distutils-extra','build-essential', 'python3-pip', 'python3', 'python3-pip' ]
+        state: latest
+
     - name: Install mysql
       apt:
-        name: ['mysql-server','mysql-client']
+        name: ['python3-mysqldb','mysql-server','mysql-client']
+        state: latest
+
       tags: mysql_user
 
     - name: Start mysql
@@ -35,16 +21,14 @@
       tags: mysql_user
 
     - name: Copy mysql cnf file
-      copy: src=.my.cnf dest=/root/.my.cnf1
-    - name: "Install ansible python3 mysql dependency"
-      apt:
-        name: python3-mysqldb
-        state: latest
-      tags: mysql_user
+      copy: src=.my.cnf dest=/root/.my.cnf
+
 
 
     - name: Create mysql user
       mysql_user:
+        login_user: root
+        login_password: ''
         name: db_user
         password: Passw0rd
         priv: '*.*:ALL'
@@ -58,17 +42,13 @@
         login_unix_socket: /var/run/mysqld/mysqld.sock
         name: employee_db
         state: present
-    - name: Upgrade pip
-      shell: 'echo pip3 install --upgrade pip3'
+    - name: install pip3
+      yum: name=python3-pip state=absent
+    - name: install pip3
+      yum: name=python3-pip state=latest
 
-    - name: Remove Flask dependencies
+    - name: Install Flask dependencies
       pip:
-        name: ['flask', 'flask-mysql']
-        state: present
-        executable: pip3
-
-    - name: Remove Flask dependencies
-      pip:
-        name: [ 'flask', 'flask-mysql' ]
+        name: 'flask'
         state: latest
         executable: pip3
